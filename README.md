@@ -1,2 +1,2 @@
-# potential-bassoon
+# Ursa
 Luwdigs unsupervised cluster classification
