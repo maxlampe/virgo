@@ -1,4 +1,4 @@
-# Ursa
+# Virgo
 Luwdigs unsupervised cluster classification Gedoens
 
-Unsupervised classification of Remnants of SupernovA 
+VIRGO (Variational Inference package for unsupeRvised classification of (inter-)Galactic shOck waves
