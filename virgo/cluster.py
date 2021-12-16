@@ -43,20 +43,27 @@ class VirgoCluster:
             print(f"Mean / Std: {data.mean():0.3f} / {data.std():0.3f}")
             print(f"Min / Max: {data.min():0.3f} / {data.max():0.3f}")
 
-    def plot_cluster(self, cluster_ind: list = None, n_step: int = 1):
+    def plot_cluster(
+        self, cluster_label: list = None, n_step: int = 1, remove_uncertain: bool = True
+    ):
         """Print all or subset of clusters in 3D plot."""
 
-        assert self.cluster is not None, "Error: No cluster data set."
-        assert self.cluster_labels is not None, "Error: No cluster labels set."
+        assert self.cluster is not None, "No cluster data set."
+        assert self.cluster_labels is not None, "No cluster labels set."
 
         plot_data = self.cluster[::n_step]
         plot_label = self.cluster_labels[::n_step]
 
-        fig = plt.figure(figsize=(8, 8))
-        ax = fig.add_subplot(projection='3d')
+        if remove_uncertain:
+            uncertain_mask = (plot_label >= 0)
+            plot_data = plot_data[uncertain_mask]
+            plot_label = plot_label[uncertain_mask]
 
-        if cluster_ind is not None:
-            for target_ind, target_label in enumerate(cluster_ind):
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot(projection="3d")
+
+        if cluster_label is not None:
+            for target_ind, target_label in enumerate(cluster_label):
                 curr_data = plot_data[plot_label == target_label]
                 curr_label = plot_label[plot_label == target_label]
                 if target_ind == 0:
@@ -97,7 +104,6 @@ def main():
     cluster = VirgoCluster(file_name=file_name)
     cluster.scale_data()
     cluster.print_datastats()
-    print("Bollocks")
 
 
 if __name__ == "__main__":
