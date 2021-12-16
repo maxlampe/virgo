@@ -86,6 +86,14 @@ class VirgoCluster:
         )
         plt.show()
 
+    def get_labels(self, return_counts=False):
+        """Returns available labels and counts per label"""
+
+        assert self.cluster_labels is not None, "No cluster labels set."
+        avail_labels = np.unique(self.cluster_labels, return_counts=return_counts)
+
+        return avail_labels
+
     @staticmethod
     def _load_data(file_name: str, shuffle: bool = True, n_max: int = None):
         """"""
