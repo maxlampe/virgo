@@ -36,10 +36,10 @@ class VirgoCluster:
     def print_datastats(self):
         """Print a few simple statistics about the data"""
 
-        for data in [self.data, self.scaled_data]:
+        for ind, data in enumerate([self.data, self.scaled_data]):
             if data is None:
                 continue
-            print(f"Shape: {data.shape}")
+            print(f"Data set {ind} - Shape: {data.shape}")
             print(f"Mean / Std: {data.mean():0.3f} / {data.std():0.3f}")
             print(f"Min / Max: {data.min():0.3f} / {data.max():0.3f}")
 
@@ -55,7 +55,7 @@ class VirgoCluster:
         plot_label = self.cluster_labels[::n_step]
 
         if remove_uncertain:
-            uncertain_mask = (plot_label >= 0)
+            uncertain_mask = plot_label >= 0
             plot_data = plot_data[uncertain_mask]
             plot_label = plot_label[uncertain_mask]
 
