@@ -47,7 +47,7 @@ class VirgoMixture:
         data: np.array = None,
         remove_uncertain_labels: bool = False,
         uncertainty_prob: float = 0.95,
-    ):
+    ) -> np.ndarray:
         """"""
 
         if data is None:
