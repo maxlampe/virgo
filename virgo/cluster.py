@@ -97,6 +97,23 @@ class VirgoCluster:
 
         return avail_labels
 
+    def sort_labels(self):
+        """Relabels cluster dependent on size."""
+
+        assert self.cluster_labels is not None, "No cluster labels set."
+
+        unique = self.get_labels(return_counts=True)
+        labels_cp = copy.copy(self.cluster_labels)
+
+        j = 0
+        for i in np.argsort(unique[1])[::-1]:
+            curr_label = unique[0][i]
+            if curr_label >= 0:
+                labels_cp[self.cluster_labels == curr_label] = j
+                j += 1
+
+        self.cluster_labels = labels_cp
+
     @staticmethod
     def _load_data(file_name: str, shuffle: bool = True, n_max: int = None):
         """"""
