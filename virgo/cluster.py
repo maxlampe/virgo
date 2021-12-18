@@ -30,7 +30,7 @@ class VirgoCluster:
     def scale_data(self):
         """Create second data set and rescale it."""
 
-        scaled_data = self.data
+        scaled_data = self.data[:, 1:]
         self.scaler = StandardScaler()
         self.scaler.fit(scaled_data)
         scaled_data = self.scaler.transform(scaled_data)
@@ -80,9 +80,9 @@ class VirgoCluster:
             plot_label = plot_label_filt
 
         ax.scatter(
-            plot_data.T[0],
             plot_data.T[1],
             plot_data.T[2],
+            plot_data.T[3],
             c=plot_label,
             marker=".",
             cmap="plasma",
@@ -119,6 +119,16 @@ class VirgoCluster:
         """"""
 
         data = np.loadtxt(file_name)
+        n_data = data.shape[0]
+        ev_no = np.linspace(0, n_data - 1, n_data, dtype=int)
+
+        # adding event number dimension (ev_no + 2 = line number in file)
+        ev_no = np.expand_dims(ev_no, axis=1)
+        data = np.append(data, ev_no, axis=1)
+        ind_list = list(range(data.shape[1]))
+        ind_list.insert(0, ind_list.pop(len(ind_list) - 1))
+        data = data[:, ind_list]
+
         if shuffle:
             np.random.shuffle(data)
         if n_max is not None:

@@ -108,7 +108,8 @@ class LowDensityCleaner(BaseCleaner):
     def _clean_cluster(self, tmp_data: np.array, tmp_label: np.array) -> tuple:
         """"""
 
-        cluster_density = self.calc_density(tmp_data)
+        # Need to disregard ev number dim
+        cluster_density = self.calc_density(tmp_data[:, 1:])
         print(f"Density: {cluster_density}")
         if cluster_density <= self._density_th:
             return None, None
