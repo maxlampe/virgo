@@ -1,6 +1,7 @@
 """Central virgo cluster data class"""
 
 import numpy as np
+import copy
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
@@ -15,9 +16,11 @@ from sklearn.preprocessing import StandardScaler
 class VirgoCluster:
     """"""
 
-    def __init__(self, file_name: str, shuffle_data: bool = True):
+    def __init__(
+        self, file_name: str, shuffle_data: bool = True, n_max_data: int = None
+    ):
         self._fname = file_name
-        self.data = self._load_data(self._fname, shuffle=shuffle_data)
+        self.data = self._load_data(self._fname, shuffle=shuffle_data, n_max=n_max_data)
         self.scaler = None
         self.scaled_data = None
 
