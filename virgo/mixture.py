@@ -62,6 +62,7 @@ class VirgoMixture:
 
             self._vcluster.cluster = self._vcluster.data
             self._vcluster.cluster_labels = self.predictions
+            self._vcluster.sort_labels()
 
             return self.predictions
         else:
