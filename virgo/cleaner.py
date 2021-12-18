@@ -13,7 +13,7 @@ class BaseCleaner:
         self.clusters = None
         self.labels = None
 
-    def clean(self):
+    def clean(self, sort_labels: bool = True):
         """"""
 
         self.clusters = []
@@ -53,6 +53,8 @@ class BaseCleaner:
 
         self._vcluster.cluster = all_clusters
         self._vcluster.cluster_labels = all_labs
+        if sort_labels:
+            self._vcluster.sort_labels()
 
     def _clean_cluster(self, tmp_data: np.array, tmp_label: np.array) -> tuple:
         """"""
