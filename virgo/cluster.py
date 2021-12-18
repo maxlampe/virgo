@@ -47,7 +47,11 @@ class VirgoCluster:
             print(f"Min / Max: {data.min():0.3f} / {data.max():0.3f}")
 
     def plot_cluster(
-        self, cluster_label: list = None, n_step: int = 1, remove_uncertain: bool = True
+        self,
+        cluster_label: list = None,
+        n_step: int = 1,
+        remove_uncertain: bool = True,
+        maker_size: float = None,
     ):
         """Print all or subset of clusters in 3D plot."""
 
@@ -79,6 +83,9 @@ class VirgoCluster:
             plot_data = plot_data_filt
             plot_label = plot_label_filt
 
+        if maker_size is None:
+            maker_size = 6.0
+
         ax.scatter(
             plot_data.T[1],
             plot_data.T[2],
@@ -86,6 +93,7 @@ class VirgoCluster:
             c=plot_label,
             marker=".",
             cmap="plasma",
+            s=maker_size,
         )
         plt.show()
 
