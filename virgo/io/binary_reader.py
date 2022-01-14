@@ -12,7 +12,7 @@ import numpy as np
          mach                       # mach vector
          hsml                       # hsml vector
 """
-def read_binary_data(filebase):
+def read_binary_data(filebase: str):
 
     filename = filebase + '_pos.dat'
 
@@ -27,7 +27,7 @@ def read_binary_data(filebase):
     """
         Read positions
     """
-    pos = np.reshape(np.fromfile(filename,             # file to read
+    pos = np.reshape(np.fromfile(filename,    # file to read
                           offset=8,           # skip first numer -> number of particles
                           count=Npart*3,      # how many particles to read
                           dtype=np.float32    # read doubles -> 64bit float
@@ -37,10 +37,10 @@ def read_binary_data(filebase):
         Read shock normal
     """
     filename = filebase + '_shock_normal.dat'
-    shock_normal = np.reshape(np.fromfile(filename,             # file to read
-                          offset=8,           # skip first numer -> number of particles
-                          count=Npart*3,      # how many particles to read
-                          dtype=np.float32    # read doubles -> 64bit float
+    shock_normal = np.reshape(np.fromfile(filename,   # file to read
+                          offset=8,                   # skip first numer -> number of particles
+                          count=Npart*3,              # how many particles to read
+                          dtype=np.float32            # read doubles -> 64bit float
                           ), (Npart, 3) )
 
     """
@@ -48,21 +48,21 @@ def read_binary_data(filebase):
     """
     filename = filebase + '_mach.dat'
     mach = np.fromfile( filename,             # file to read
-                        offset=8,           # skip first numer -> number of particles
-                        count=Npart,      # how many particles to read
-                        dtype=np.float32    # read doubles -> 64bit float
+                        offset=8,             # skip first numer -> number of particles
+                        count=Npart,          # how many particles to read
+                        dtype=np.float32      # read doubles -> 64bit float
                         )
 
     """
         Read HSML
     """
     filename = filebase + '_hsml.dat'
-    hsml = np.fromfile(filename,             # file to read
+    hsml = np.fromfile(filename,              # file to read
                           offset=8,           # skip first numer -> number of particles
-                          count=Npart,      # how many particles to read
+                          count=Npart,        # how many particles to read
                           dtype=np.float32    # read doubles -> 64bit float
                           )
 
     return np.vstack((  pos[:,0], pos[:,1], pos[:,2], 
                         shock_normal[:,0], shock_normal[:,1], shock_normal[:,2], 
-                        mach, hsml))
+                        mach, hsml)).T
