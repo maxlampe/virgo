@@ -20,28 +20,35 @@ class VirgoCluster:
     """"""
 
     def __init__(
-        self, file_name: str, io_mode: int = 0,
-        mach_floor: float = 1.0, mach_ceiling: float = 1.0e6,
-        center = np.zeros(3), radius: float = 0.0, # 
-        shuffle_data: bool = True, n_max_data: int = None
+        self,
+        file_name: str,
+        io_mode: int = 0,
+        mach_floor: float = 1.0,
+        mach_ceiling: float = 1.0e6,
+        center=np.zeros(3),
+        radius: float = 0.0,  #
+        shuffle_data: bool = True,
+        n_max_data: int = None,
     ):
         """
-                __init__
-            
-            Parameters:
-                file_name                   # name of input file
-                io_mode                     # how to read the data
-                                            #   0: .txt file
-                                            #   1: custom binary file
-                                            #   2: Gadget snapshot
-                mach_floor                  # minimum Mach number to consider
-                mach_ceiling                # maximum Mach number to consider
-                center = [0, 0, 0]          # center of seleted box (only relevant for io_mode = 2)
-                radius = 0                  # radius of selected box (only relevant for io_mode = 2)
+            __init__
+
+        Parameters:
+            file_name                   # name of input file
+            io_mode                     # how to read the data
+                                        #   0: .txt file
+                                        #   1: custom binary file
+                                        #   2: Gadget snapshot
+            mach_floor                  # minimum Mach number to consider
+            mach_ceiling                # maximum Mach number to consider
+            center = [0, 0, 0]          # center of seleted box (only relevant for io_mode = 2)
+            radius = 0                  # radius of selected box (only relevant for io_mode = 2)
 
         """
         self._fname = file_name
-        self.data = self._load_data(self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data)
+        self.data = self._load_data(
+            self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data
+        )
         self.scaler = None
         self.scaled_data = None
 
@@ -135,7 +142,7 @@ class VirgoCluster:
                 fig, animate, init_func=init, frames=90, interval=50, blit=True
             )
             fn = "rotate_azimuth_angle_3d_surf"
-            ani.save(fn + ".gif", writer="imagemagick", fps=1000 / 50)
+            ani.save(fn + ".gif", writer="imagemagick", fps=1000/50)
         else:
             init()
 
@@ -192,18 +199,19 @@ class VirgoCluster:
         np.savetxt(f"{file_name}_cluster_labels.txt", out_labels)
 
     @staticmethod
-    def _load_data(file_name: str, io_mode:int, shuffle: bool = True, n_max: int = None):
+    def _load_data(
+        file_name: str, io_mode: int, shuffle: bool = True, n_max: int = None
+    ):
         """"""
 
         if io_mode == 0:
             data = np.loadtxt(file_name)
         elif io_mode == 1:
             data = read_binary_data(file_name)
-        #elif io_mode == 2:
-            #data = read_gadget_data(file_name)
+        # elif io_mode == 2:
+        # data = read_gadget_data(file_name)
         else:
             assert False, "requested io_mode not implemented!"
-
 
         n_data = data.shape[0]
         ev_no = np.linspace(0, n_data - 1, n_data, dtype=int)
