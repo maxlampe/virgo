@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from .io.binary_reader import read_binary_data
 
+from matplotlib import animation
+
 # np.set_printoptions(edgeitems=10)
 # np.core.arrayprint._line_width = 180
 
@@ -71,13 +73,19 @@ class VirgoCluster:
         n_step: int = 1,
         remove_uncertain: bool = True,
         maker_size: float = None,
+        plot_kernel_space: bool = False,
+        store_gif: bool = False,
     ):
         """Print all or subset of clusters in 3D plot."""
 
         assert self.cluster is not None, "No cluster data set."
         assert self.cluster_labels is not None, "No cluster labels set."
 
-        plot_data = self.cluster[::n_step]
+        if plot_kernel_space:
+            plot_data = self.scaled_data[::n_step]
+        else:
+            # ignore event number dim
+            plot_data = self.cluster[::n_step, 1:]
         plot_label = self.cluster_labels[::n_step]
 
         if remove_uncertain:
@@ -85,8 +93,8 @@ class VirgoCluster:
             plot_data = plot_data[uncertain_mask]
             plot_label = plot_label[uncertain_mask]
 
-        fig = plt.figure(figsize=(8, 8))
-        ax = fig.add_subplot(projection="3d")
+        if maker_size is None:
+            maker_size = 6.0
 
         if cluster_label is not None:
             for target_ind, target_label in enumerate(cluster_label):
@@ -102,18 +110,35 @@ class VirgoCluster:
             plot_data = plot_data_filt
             plot_label = plot_label_filt
 
-        if maker_size is None:
-            maker_size = 6.0
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot(projection="3d")
 
-        ax.scatter(
-            plot_data.T[1],
-            plot_data.T[2],
-            plot_data.T[3],
-            c=plot_label,
-            marker=".",
-            cmap="plasma",
-            s=maker_size,
-        )
+        def animate(i):
+            # azimuth angle : 0 deg to 360 deg
+            ax.view_init(elev=10, azim=i * 4)
+            return (fig,)
+
+        def init():
+            ax.scatter(
+                plot_data.T[0],
+                plot_data.T[1],
+                plot_data.T[2],
+                c=plot_label,
+                marker=".",
+                cmap="plasma",
+                s=maker_size,
+            )
+
+        if store_gif:
+            # Animate
+            ani = animation.FuncAnimation(
+                fig, animate, init_func=init, frames=90, interval=50, blit=True
+            )
+            fn = "rotate_azimuth_angle_3d_surf"
+            ani.save(fn + ".gif", writer="imagemagick", fps=1000 / 50)
+        else:
+            init()
+
         plt.show()
 
     def get_labels(self, return_counts=False):
@@ -140,6 +165,31 @@ class VirgoCluster:
                 j += 1
 
         self.cluster_labels = labels_cp
+
+    def export_cluster(
+        self,
+        file_name: str = None,
+        remove_uncertain: bool = True,
+        remove_evno: bool = False,
+    ):
+        """"""
+
+        if remove_uncertain:
+            mask = self.cluster_labels >= 0
+            out_cluster = self.cluster[mask]
+            out_labels = self.cluster_labels[mask]
+        else:
+            out_cluster = self.cluster
+            out_labels = self.cluster_labels
+
+        if remove_evno:
+            out_cluster = out_cluster[:, 1:]
+
+        if file_name is None:
+            file_name = "VirgoCluster"
+
+        np.savetxt(f"{file_name}_cluster.txt", out_cluster)
+        np.savetxt(f"{file_name}_cluster_labels.txt", out_labels)
 
     @staticmethod
     def _load_data(file_name: str, io_mode:int, shuffle: bool = True, n_max: int = None):
