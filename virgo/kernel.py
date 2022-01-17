@@ -69,18 +69,13 @@ class VirgoKernel(BaseKernel):
     def calc_kernel_space(self, x_data: np.array) -> np.array:
         """"""
 
-        # rbf_kernel = lambda A, B: pairwise_kernels(A, B, metric="laplacian", gamma=gamma)
-        # rbf_kernel = lambda A, B: pairwise_kernels(A, B, metric="polynomial", gamma=gamma)
-        # rbf_kernel = lambda A, B: pairwise_kernels(A, B, metric="cosine")
-        # rbf_kernel = lambda A, B: pairwise_kernels(A, B)
-
         gamma = 1 / (2 * x_data[:, self._spatial_dim].var())
-        # rbf_kernel = lambda A, B: pairwise_kernels(A, B, metric="rbf", gamma=gamma)
-        rbf_kernel = lambda A, B: pairwise_kernels(A, B, metric="cosine")
-        # rbf_kernel = lambda A, B: pairwise_kernels(A, B, metric="polynomial", gamma=gamma)
-        # rbf_kernel = lambda A, B: pairwise_kernels(A, B)
+        kernel = lambda A, B: pairwise_kernels(A, B, metric="rbf", gamma=gamma)
+        # kernel = lambda A, B: pairwise_kernels(A, B, metric="cosine")
+        # kernel = lambda A, B: pairwise_kernels(A, B, metric="polynomial", gamma=gamma)
+        # kernel = lambda A, B: pairwise_kernels(A, B)
         kernel_space = self.nystroem_transformation(
-            x_data[:, self._spatial_dim], k=self._k_nystroem, kernel_function=rbf_kernel
+            x_data[:, self._spatial_dim], k=self._k_nystroem, kernel_function=kernel
         )
         kernel_space_pca = PCA(n_components=self._pca_comp).fit_transform(kernel_space)
 
