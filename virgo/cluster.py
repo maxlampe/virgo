@@ -55,6 +55,16 @@ class VirgoCluster:
         self.cluster = None
         self.cluster_labels = None
 
+    def filter_dim(self, target_dim: int, ceil: float = None, floor: float = None):
+        """Simple filter of data target dimension with ceiling and floor value."""
+
+        if ceil is not None:
+            sub_data = self.data[:, target_dim]
+            self.data = self.data[sub_data <= ceil]
+        if floor is not None:
+            sub_data = self.data[:, target_dim]
+            self.data = self.data[sub_data > floor]
+
     def scale_data(self):
         """Create second data set and rescale it."""
 
