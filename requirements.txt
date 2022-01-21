@@ -1,0 +1,7 @@
+numpy~=1.19.4
+torch~=1.9.0+cpu
+gpytorch~=1.5.1
+scipy~=1.5.4
+scikit-learn~=1.0
+matplotlib~=3.3.3
+pyfof~=0.1.5
