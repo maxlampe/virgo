@@ -167,6 +167,21 @@ class VirgoCluster:
 
         self.cluster_labels = labels_cp
 
+    def remove_small_groups(self, remove_thresh: int = None):
+        """Remove cluster groups by count threshhold."""
+
+        assert self.cluster_labels is not None, "No cluster labels set."
+
+        unique = self.get_labels(return_counts=True)
+        labels_cp = copy.copy(self.cluster_labels)
+        label_small = unique[0][unique[1] < remove_thresh]
+
+        for i, label in enumerate(label_small):
+            if label >= 0:
+                labels_cp[self.cluster_labels == label] = -1
+
+        self.cluster_labels = labels_cp
+
     def export_cluster(
         self,
         file_name: str = None,
@@ -191,13 +206,14 @@ class VirgoCluster:
 
         np.savetxt(f"{file_name}_cluster.txt", out_cluster)
         np.savetxt(f"{file_name}_cluster_labels.txt", out_labels)
-
     
-    def run_fof(self, linking_length: float = 35.0):
-        """ Run simple FoF and assign labels """
+    def run_fof(self, linking_length: float = 35.0, min_group_size: int = 100):
+        """Run simple FoF and assign labels"""
 
-        self.cluster_labels = _run_fof_for_cluster(self.data[:,1:3], linking_length)
-
+        self.cluster_labels = _run_fof_for_cluster(self.data[:, 1:4], linking_length)
+        self.cluster = self.data
+        self.remove_small_groups(remove_thresh=min_group_size)
+        self.sort_labels()
 
     @staticmethod
     def _load_data(file_name: str, io_mode:int, shuffle: bool = True, n_max: int = None):
