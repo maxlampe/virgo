@@ -25,10 +25,11 @@ class VirgoCluster:
         file_name: str,
         io_mode: int = 0,
         mach_floor: float = 1.0,
-        mach_ceiling: float = 1.0e6,
+        mach_ceiling: float = 15.0,
         center=np.zeros(3),
         radius: float = 0.0,  #
         shuffle_data: bool = True,
+        cut_mach_dim: int = None,
         n_max_data: int = None,
     ):
         """
@@ -50,6 +51,17 @@ class VirgoCluster:
         self.data = self._load_data(
             self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data
         )
+
+        self._cut_mach_dim = cut_mach_dim
+        self._mach_floor = mach_floor
+        self._mach_ceiling = mach_ceiling
+
+        if self._cut_mach_dim is not None:
+            mach_mask = self.data[:, self._cut_mach_dim] < self._mach_ceiling
+            self.data = self.data[mach_mask]
+            mach_mask = self.data[:, self._cut_mach_dim] >= self._mach_floor
+            self.data = self.data[mach_mask]
+
         self.scaler = None
         self.scaled_data = None
 
@@ -153,7 +165,7 @@ class VirgoCluster:
                 fig, animate, init_func=init, frames=90, interval=50, blit=True
             )
             fn = "rotate_azimuth_angle_3d_surf"
-            ani.save(fn + ".gif", writer="imagemagick", fps=1000/50)
+            ani.save(fn + ".gif", writer="imagemagick", fps=1000 / 50)
         else:
             init()
 
@@ -223,7 +235,7 @@ class VirgoCluster:
 
         np.savetxt(f"{file_name}_cluster.txt", out_cluster)
         np.savetxt(f"{file_name}_cluster_labels.txt", out_labels)
-    
+
     def run_fof(self, linking_length: float = 35.0, min_group_size: int = 100):
         """Run simple FoF and assign labels"""
 
