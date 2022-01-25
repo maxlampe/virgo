@@ -31,6 +31,7 @@ class VirgoCluster:
         shuffle_data: bool = True,
         cut_mach_dim: int = None,
         n_max_data: int = None,
+        random_seed: int = 2022,
     ):
         """
             __init__
@@ -47,6 +48,10 @@ class VirgoCluster:
             radius = 0                  # radius of selected box (only relevant for io_mode = 2)
 
         """
+
+        self.rdm_seed = random_seed
+        np.random.seed(self.rdm_seed)
+
         self._fname = file_name
         self.data = self._load_data(
             self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data
