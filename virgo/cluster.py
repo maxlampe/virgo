@@ -150,7 +150,7 @@ class VirgoCluster:
 
         def animate(i):
             # azimuth angle : 0 deg to 360 deg
-            ax.view_init(elev=10, azim=i * 4)
+            ax.view_init(elev=10, azim=i * 1)
             return (fig,)
 
         def init():
@@ -167,7 +167,7 @@ class VirgoCluster:
         if store_gif:
             # Animate
             ani = animation.FuncAnimation(
-                fig, animate, init_func=init, frames=90, interval=50, blit=True
+                fig, animate, init_func=init, frames=360, interval=100, blit=True
             )
             fn = "rotate_azimuth_angle_3d_surf"
             ani.save(fn + ".gif", writer="imagemagick", fps=1000 / 50)
