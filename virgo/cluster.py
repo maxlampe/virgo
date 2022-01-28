@@ -110,6 +110,7 @@ class VirgoCluster:
         maker_size: float = None,
         plot_kernel_space: bool = False,
         store_gif: bool = False,
+        gif_title: str = None,
     ):
         """Print all or subset of clusters in 3D plot."""
 
@@ -169,8 +170,11 @@ class VirgoCluster:
             ani = animation.FuncAnimation(
                 fig, animate, init_func=init, frames=360, interval=100, blit=True
             )
-            fn = "rotate_azimuth_angle_3d_surf"
-            ani.save(fn + ".gif", writer="imagemagick", fps=1000 / 50)
+            if gif_title is None:
+                file_name = "rotate_azimuth_angle_3d_surf"
+            else:
+                file_name = gif_title
+            ani.save(file_name + ".gif", writer="imagemagick", fps=15)
         else:
             init()
 
