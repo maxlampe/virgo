@@ -83,10 +83,15 @@ class VirgoCluster:
             sub_data = self.data[:, target_dim]
             self.data = self.data[sub_data > floor]
 
-    def scale_data(self):
+    def scale_data(self, use_dim: list = None):
         """Create second data set and rescale it."""
 
-        scaled_data = self.data[:, 1:]
+        if use_dim is None:
+            scaled_data = self.data[:, 1:]
+        else:
+            # To get rid of added event id on import
+            dims = [i + 1 for i in use_dim]
+            scaled_data = self.data[:, dims]
         self.scaler = StandardScaler()
         self.scaler.fit(scaled_data)
         scaled_data = self.scaler.transform(scaled_data)
