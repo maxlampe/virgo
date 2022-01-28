@@ -22,7 +22,7 @@ Python version 3.8 or above required.
 ```bash
 git clone https://github.com/maxlampe/virgo
 pip3 install -r requirements.txt
-python3 -m pip install -e path-to-panter-dir
+python3 -m pip install -e path-to-virgo-dir
 ```
 
 ### Getting started
