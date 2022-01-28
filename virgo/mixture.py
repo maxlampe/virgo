@@ -54,12 +54,10 @@ class VirgoClustering(BaseModel):
             )
 
         elif self._clustering_type == self._valid_clustering[0]:
-            self.model = OPTICS(min_samples=50)
+            self.model = OPTICS(min_samples=self._min_samples)
         elif self._clustering_type == self._valid_clustering[1]:
-            eps = 0.05
-            min_samples = 5
-            print(eps, min_samples)
-            self.model = DBSCAN(min_samples=min_samples, eps=eps)
+            eps = 0.035
+            self.model = DBSCAN(min_samples=self._min_samples, eps=eps)
         elif self._clustering_type == self._valid_clustering[2]:
             self.model = SpectralClustering(n_clusters=self._n_clusters)
         elif self._clustering_type == self._valid_clustering[3]:
