@@ -53,9 +53,10 @@ class VirgoCluster:
         np.random.seed(self.rdm_seed)
 
         self._fname = file_name
-        self.data = self._load_data(
-            self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data
-        )
+        if self._fname is not None:
+            self.data = self._load_data(
+                self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data
+            )
 
         self._cut_mach_dim = cut_mach_dim
         self._mach_floor = mach_floor
