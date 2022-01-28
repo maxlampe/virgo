@@ -102,6 +102,41 @@ class VirgoCluster:
             print(f"Mean / Std: {data.mean():0.3f} / {data.std():0.3f}")
             print(f"Min / Max: {data.min():0.3f} / {data.max():0.3f}")
 
+    def plot_raw_hists(
+        self,
+        bins: int = 100,
+        plot_range: list = None,
+        axs_label: list = ["x [ ]", "y [ ]", "z [ ]"],
+    ):
+        """Visualize raw spatial data as histograms"""
+
+        from matplotlib import colors
+
+        fig, axs = plt.subplots(1, 3, figsize=(10, 3))
+        # fig.suptitle("Raw data histograms with LogNorm")
+
+        for i in range(3):
+            if plot_range is not None:
+                p_range = [plot_range[i % 3], plot_range[(i + 1) % 3]]
+
+            axs.flat[i].hist2d(
+                self.data[:, i % 3 + 1],
+                self.data[:, (i + 1) % 3 + 1],
+                bins=bins,
+                norm=colors.LogNorm(),
+                cmap="plasma",
+                range=p_range,
+            )
+            # to "hide" empty bins
+            axs.flat[i].set_facecolor("#0c0887")
+            axs.flat[i].set(
+                xlabel=axs_label[i % 3], ylabel=axs_label[(i +1) % 3]
+            )
+
+        plt.subplots_adjust(wspace=0.3)
+        plt.tight_layout()
+        plt.show()
+
     def plot_cluster(
         self,
         cluster_label: list = None,
