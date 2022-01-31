@@ -135,9 +135,7 @@ class VirgoCluster:
             )
             # to "hide" empty bins
             axs.flat[i].set_facecolor("#0c0887")
-            axs.flat[i].set(
-                xlabel=axs_label[i % 3], ylabel=axs_label[(i +1) % 3]
-            )
+            axs.flat[i].set(xlabel=axs_label[i % 3], ylabel=axs_label[(i + 1) % 3])
 
         plt.subplots_adjust(wspace=0.3)
         plt.tight_layout()
