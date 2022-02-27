@@ -150,6 +150,9 @@ class VirgoCluster:
         plot_kernel_space: bool = False,
         store_gif: bool = False,
         gif_title: str = None,
+        axs_label: list = None,
+        cmap_vmin: float = None,
+        cmap_vmax: float = None,
     ):
         """Print all or subset of clusters in 3D plot."""
 
@@ -158,9 +161,13 @@ class VirgoCluster:
 
         if plot_kernel_space:
             plot_data = self.scaled_data[::n_step]
+            if axs_label is None:
+                axs_label = ["phi_0 [ ]", "phi_1 [ ]", "phi_2 [ ]"]
         else:
             # ignore event number dim
             plot_data = self.cluster[::n_step, 1:]
+            if axs_label is None:
+                axs_label = ["x [c kpc / h]", "y [c kpc / h]", "z [c kpc / h]"]
         plot_label = self.cluster_labels[::n_step]
 
         if remove_uncertain:
@@ -202,7 +209,10 @@ class VirgoCluster:
                 marker=".",
                 cmap="plasma",
                 s=maker_size,
+                vmin=cmap_vmin,
+                vmax=cmap_vmax,
             )
+            ax.set(xlabel=axs_label[0], ylabel=axs_label[1], zlabel=axs_label[2])
 
         if store_gif:
             # Animate
