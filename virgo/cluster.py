@@ -31,6 +31,7 @@ class VirgoCluster:
         shuffle_data: bool = True,
         cut_mach_dim: int = None,
         n_max_data: int = None,
+        random_seed: int = 2022,
     ):
         """
             __init__
@@ -47,10 +48,15 @@ class VirgoCluster:
             radius = 0                  # radius of selected box (only relevant for io_mode = 2)
 
         """
+
+        self.rdm_seed = random_seed
+        np.random.seed(self.rdm_seed)
+
         self._fname = file_name
-        self.data = self._load_data(
-            self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data
-        )
+        if self._fname is not None:
+            self.data = self._load_data(
+                self._fname, io_mode, shuffle=shuffle_data, n_max=n_max_data
+            )
 
         self._cut_mach_dim = cut_mach_dim
         self._mach_floor = mach_floor
@@ -78,10 +84,15 @@ class VirgoCluster:
             sub_data = self.data[:, target_dim]
             self.data = self.data[sub_data > floor]
 
-    def scale_data(self):
+    def scale_data(self, use_dim: list = None):
         """Create second data set and rescale it."""
 
-        scaled_data = self.data[:, 1:]
+        if use_dim is None:
+            scaled_data = self.data[:, 1:]
+        else:
+            # To get rid of added event id on import
+            dims = [i + 1 for i in use_dim]
+            scaled_data = self.data[:, dims]
         self.scaler = StandardScaler()
         self.scaler.fit(scaled_data)
         scaled_data = self.scaler.transform(scaled_data)
@@ -97,6 +108,41 @@ class VirgoCluster:
             print(f"Mean / Std: {data.mean():0.3f} / {data.std():0.3f}")
             print(f"Min / Max: {data.min():0.3f} / {data.max():0.3f}")
 
+    def plot_raw_hists(
+        self,
+        bins: int = 100,
+        plot_range: list = None,
+        axs_label: list = ["x [ ]", "y [ ]", "z [ ]"],
+    ):
+        """Visualize raw spatial data as histograms"""
+
+        from matplotlib import colors
+
+        fig, axs = plt.subplots(1, 3, figsize=(10, 3))
+        # fig.suptitle("Raw data histograms with LogNorm")
+
+        for i in range(3):
+            if plot_range is not None:
+                p_range = [plot_range[i % 3], plot_range[(i + 1) % 3]]
+            else:
+                p_range = None
+
+            axs.flat[i].hist2d(
+                self.data[:, i % 3 + 1],
+                self.data[:, (i + 1) % 3 + 1],
+                bins=bins,
+                norm=colors.LogNorm(),
+                cmap="plasma",
+                range=p_range,
+            )
+            # to "hide" empty bins
+            axs.flat[i].set_facecolor("#0c0887")
+            axs.flat[i].set(xlabel=axs_label[i % 3], ylabel=axs_label[(i + 1) % 3])
+
+        plt.subplots_adjust(wspace=0.3)
+        plt.tight_layout()
+        plt.show()
+
     def plot_cluster(
         self,
         cluster_label: list = None,
@@ -105,6 +151,10 @@ class VirgoCluster:
         maker_size: float = None,
         plot_kernel_space: bool = False,
         store_gif: bool = False,
+        gif_title: str = None,
+        axs_label: list = None,
+        cmap_vmin: float = None,
+        cmap_vmax: float = None,
     ):
         """Print all or subset of clusters in 3D plot."""
 
@@ -113,9 +163,13 @@ class VirgoCluster:
 
         if plot_kernel_space:
             plot_data = self.scaled_data[::n_step]
+            if axs_label is None:
+                axs_label = ["phi_0 [ ]", "phi_1 [ ]", "phi_2 [ ]"]
         else:
             # ignore event number dim
             plot_data = self.cluster[::n_step, 1:]
+            if axs_label is None:
+                axs_label = ["x [c kpc / h]", "y [c kpc / h]", "z [c kpc / h]"]
         plot_label = self.cluster_labels[::n_step]
 
         if remove_uncertain:
@@ -145,7 +199,7 @@ class VirgoCluster:
 
         def animate(i):
             # azimuth angle : 0 deg to 360 deg
-            ax.view_init(elev=10, azim=i * 4)
+            ax.view_init(elev=10, azim=i * 1)
             return (fig,)
 
         def init():
@@ -157,15 +211,21 @@ class VirgoCluster:
                 marker=".",
                 cmap="plasma",
                 s=maker_size,
+                vmin=cmap_vmin,
+                vmax=cmap_vmax,
             )
+            ax.set(xlabel=axs_label[0], ylabel=axs_label[1], zlabel=axs_label[2])
 
         if store_gif:
             # Animate
             ani = animation.FuncAnimation(
-                fig, animate, init_func=init, frames=90, interval=50, blit=True
+                fig, animate, init_func=init, frames=360, interval=100, blit=True
             )
-            fn = "rotate_azimuth_angle_3d_surf"
-            ani.save(fn + ".gif", writer="imagemagick", fps=1000 / 50)
+            if gif_title is None:
+                file_name = "rotate_azimuth_angle_3d_surf"
+            else:
+                file_name = gif_title
+            ani.save(file_name + ".gif", writer="imagemagick", fps=15)
         else:
             init()
 
@@ -236,10 +296,20 @@ class VirgoCluster:
         np.savetxt(f"{file_name}_cluster.txt", out_cluster)
         np.savetxt(f"{file_name}_cluster_labels.txt", out_labels)
 
-    def run_fof(self, linking_length: float = 35.0, min_group_size: int = 100):
+    def run_fof(
+        self,
+        linking_length: float = 35.0,
+        min_group_size: int = 100,
+        use_scaled_data: bool = False,
+    ):
         """Run simple FoF and assign labels"""
 
-        self.cluster_labels = _run_fof_for_cluster(self.data[:, 1:4], linking_length)
+        if use_scaled_data:
+            self.cluster_labels = _run_fof_for_cluster(self.scaled_data, linking_length)
+        else:
+            self.cluster_labels = _run_fof_for_cluster(
+                self.data[:, 1:4], linking_length
+            )
         self.cluster = self.data
         self.remove_small_groups(remove_thresh=min_group_size)
         self.sort_labels()

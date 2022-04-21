@@ -8,7 +8,7 @@ is a Python package for [...] data.
 
 ## Project status
 
-This project is very much WIP and changes are constantly being made. Feel free to contact [me](mailto:max.lamparth@tum.de?subject=panter) for feedback and issues.
+This project is very much WIP and changes are constantly being made. Feel free to contact [me](mailto:max.lamparth@tum.de?subject=virgo) for feedback and issues.
 Currently, even core features are still implemented and can be subject to change.
 
 ## Usage
@@ -22,7 +22,7 @@ Python version 3.8 or above required.
 ```bash
 git clone https://github.com/maxlampe/virgo
 pip3 install -r requirements.txt
-python3 -m pip install -e path-to-panter-dir
+python3 -m pip install -e path-to-virgo-dir
 ```
 
 ### Getting started
