@@ -19,7 +19,6 @@ class BaseCleaner:
         self.clusters = []
         self.labels = []
         for target_label in self._vcluster.get_labels():
-            print(f"Cluster {target_label}")
             mask = self._vcluster.cluster_labels == target_label
             tmp_data = self._vcluster.cluster[mask]
             tmp_label = self._vcluster.cluster_labels[mask]
@@ -102,17 +101,23 @@ class GaussianMixtureCleaner(BaseCleaner):
 class LowDensityCleaner(BaseCleaner):
     """Studies each cluster if it should be separated by fitting two component GM."""
 
-    def __init__(self, vcluster: VirgoCluster, density_threshhold: float):
+    def __init__(
+        self,
+        vcluster: VirgoCluster,
+        density_threshhold: float
+    ):
         super().__init__(vcluster=vcluster)
         self.unique_labels = self._vcluster.get_labels()
         self._density_th = density_threshhold
+        self.densities = []
 
     def _clean_cluster(self, tmp_data: np.array, tmp_label: np.array) -> tuple:
         """"""
 
         # Need to disregard ev number dim
         cluster_density = self.calc_density(tmp_data[:, 1:])
-        print(f"Density: {cluster_density}")
+        self.densities.append(cluster_density)
+
         if cluster_density <= self._density_th:
             return None, None
         else:
@@ -125,3 +130,37 @@ class LowDensityCleaner(BaseCleaner):
         n_particles = cluster.shape[0]
 
         return n_particles / volume
+
+
+class AutoDensityCleaner:
+    """"""
+
+    def __init__(
+        self,
+        vcluster: VirgoCluster,
+        density_threshhold: float = None,
+        pick_top: int = 1,
+    ):
+        self._vcluster = vcluster
+        self._density_th = density_threshhold
+        self._pick_top = pick_top
+        self._gamma = 0.999
+
+    def clean(self):
+        """"""
+
+        tmp_cleaner = LowDensityCleaner(self._vcluster, 1.0e-99)
+        tmp_cleaner.clean()
+        densities = np.array(tmp_cleaner.densities)
+        limit_arg = min([self._pick_top, densities.shape[0]])
+        top_limit = self._gamma * np.sort(densities)[::-1][limit_arg - 1]
+
+        if self._density_th is not None:
+            if top_limit < self._density_th:
+                top_limit = self._density_th
+
+        print(f"Density cutoff {top_limit}")
+        print(f"Densities: {densities}")
+        tmp_cleaner = LowDensityCleaner(self._vcluster, top_limit)
+        tmp_cleaner.clean()
+
