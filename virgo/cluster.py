@@ -124,6 +124,8 @@ class VirgoCluster:
         for i in range(3):
             if plot_range is not None:
                 p_range = [plot_range[i % 3], plot_range[(i + 1) % 3]]
+            else:
+                p_range = None
 
             axs.flat[i].hist2d(
                 self.data[:, i % 3 + 1],

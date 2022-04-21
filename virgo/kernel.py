@@ -22,11 +22,11 @@ class BaseKernel:
         self._vcluster = vcluster
         self._spatial_dim = spatial_dim
 
-    def __call__(self, kernel_func: Callable = None):
+    def __call__(self, kernel_func: Callable = None, **kwargs):
         x_in = self._vcluster.scaled_data
         assert x_in is not None, "Scaled data is None."
 
-        kernel_space = self.calc_kernel_space(x_in, kernel_func)
+        kernel_space = self.calc_kernel_space(x_in, kernel_func, **kwargs)
         self._vcluster.scaled_data = kernel_space
 
     def calc_kernel_space(
@@ -116,10 +116,10 @@ class VirgoKernel(BaseKernel):
         kernel2 = kernels.LinearKernel()
 
         return (
-                kernel(spat_a, spat_b) * kernel2(spat_a, spat_b)
-                + kernel(spat_a, spat_b) * kernel2(norm_a, norm_b)
-                + kernel(spat_a, spat_b) * kernel2(norm_a, norm_b)
-                # kernel(spat_a, spat_b) * kernel2(spat_a, spat_b) * kernel2(norm_a, norm_b)
+            kernel(spat_a, spat_b) * kernel2(spat_a, spat_b)
+            + kernel(spat_a, spat_b) * kernel2(norm_a, norm_b)
+            + kernel(spat_a, spat_b) * kernel2(norm_a, norm_b)
+            # kernel(spat_a, spat_b) * kernel2(spat_a, spat_b) * kernel2(norm_a, norm_b)
         )
 
     @staticmethod
