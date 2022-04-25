@@ -1,8 +1,8 @@
 """Gaussian mixture model for unsupervised classification."""
 
 
-from virgo.cluster import VirgoCluster
-from virgo.basemodel import BaseModel
+from virgo.data.cluster import VirgoCluster
+from virgo.models.basemodel import BaseModel
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.cluster import OPTICS, DBSCAN, SpectralClustering, AgglomerativeClustering
 

@@ -1,7 +1,7 @@
 """"""
 
 import numpy as np
-from virgo.cluster import VirgoCluster
+from virgo.data.cluster import VirgoCluster
 
 
 class BaseModel:

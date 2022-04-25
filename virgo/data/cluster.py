@@ -4,8 +4,8 @@ import numpy as np
 import copy
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from .io.binary_reader import read_binary_data
-from .fof.run_fof import _run_fof_for_cluster
+from virgo.io.binary_reader import read_binary_data
+from virgo.fof.run_fof import _run_fof_for_cluster
 
 from matplotlib import animation
 
@@ -298,21 +298,63 @@ class VirgoCluster:
 
     def run_fof(
         self,
-        linking_length: float = 35.0,
+        linking_length: float = None,  # 35?
         min_group_size: int = 100,
         use_scaled_data: bool = False,
+        n_nn: int = None,
     ):
         """Run simple FoF and assign labels"""
 
         if use_scaled_data:
+            if linking_length is None:
+                linking_length = self.get_avg_nn_dist(self.scaled_data, n_nn=n_nn)
+                print(f"Estimated ll: {linking_length:0.5f}")
             self.cluster_labels = _run_fof_for_cluster(self.scaled_data, linking_length)
         else:
+            if linking_length is None:
+                linking_length = self.get_avg_nn_dist(self.data[:, 1:4], n_nn=n_nn)
+                print(f"Estimated ll: {linking_length:0.5f}")
             self.cluster_labels = _run_fof_for_cluster(
                 self.data[:, 1:4], linking_length
             )
         self.cluster = self.data
         self.remove_small_groups(remove_thresh=min_group_size)
         self.sort_labels()
+
+    @staticmethod
+    def get_avg_nn_dist(
+        array: np.array, n_samples: int = 10000, n_nn: int = None, label: str = None
+    ):
+        """Helper function to get the average NN distance from an array."""
+
+        dists = []
+        samples = min(n_samples, array.shape[0])
+        if n_nn is None:
+            n_nn = 20
+        n_nn = min(n_nn, array.shape[0] - 1)
+        for i in range(samples):
+            point = array[i]
+            dist_to_all = np.sqrt(((array - point) ** 2).sum(1))
+            dist_to_all = np.sort(dist_to_all)
+            dists.append(dist_to_all[1 : n_nn + 1].mean())
+
+        dists = np.array(dists)
+        # Maybe add cuts for noisy data? To stabilize with mean +- sig?
+        # dists = dists[dists < 0.5]
+        plt.hist(dists, 100)
+        plt.show()
+        if label is not None:
+            plt.hist(dists, 100, [0.0, 0.5])
+            plt.savefig(f"nnd{n_nn}_{label}.png", dpi=300)
+
+        vals, counts = np.unique(dists, return_counts=True)
+        mode_value = np.argwhere(counts == np.max(counts))
+        mode = vals[mode_value].flatten()[0]
+        print(dists.mean(), dists.std(), dists.mean() + 1.5 * dists.std(), mode)
+        print(array.shape[0])
+
+        #     return dists.mean()
+        return dists.mean()  # + 1.5 * dists.std()
 
     @staticmethod
     def _load_data(

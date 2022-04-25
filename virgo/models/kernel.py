@@ -1,6 +1,6 @@
 """Virgo kernel class for creating new feature space dimensions."""
 
-from virgo.cluster import VirgoCluster
+from virgo.data.cluster import VirgoCluster
 from typing import Callable
 import numpy as np
 import torch

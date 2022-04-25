@@ -1,7 +1,7 @@
 """Different label cleaner and other tools."""
 
 import numpy as np
-from virgo.cluster import VirgoCluster
+from virgo.data.cluster import VirgoCluster
 from sklearn.mixture import GaussianMixture
 
 
@@ -101,11 +101,7 @@ class GaussianMixtureCleaner(BaseCleaner):
 class LowDensityCleaner(BaseCleaner):
     """Studies each cluster if it should be separated by fitting two component GM."""
 
-    def __init__(
-        self,
-        vcluster: VirgoCluster,
-        density_threshhold: float
-    ):
+    def __init__(self, vcluster: VirgoCluster, density_threshhold: float):
         super().__init__(vcluster=vcluster)
         self.unique_labels = self._vcluster.get_labels()
         self._density_th = density_threshhold
@@ -163,4 +159,3 @@ class AutoDensityCleaner:
         print(f"Densities: {densities}")
         tmp_cleaner = LowDensityCleaner(self._vcluster, top_limit)
         tmp_cleaner.clean()
-
