@@ -1,7 +1,7 @@
 """Different label cleaner and other tools."""
 
 import numpy as np
-from virgo.cluster import VirgoCluster
+from virgo.data.cluster import VirgoCluster
 from sklearn.mixture import GaussianMixture
 
 

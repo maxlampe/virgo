@@ -4,8 +4,8 @@ import numpy as np
 import copy
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from .io.binary_reader import read_binary_data
-from .fof.run_fof import _run_fof_for_cluster
+from virgo.io.binary_reader import read_binary_data
+from virgo.fof.run_fof import _run_fof_for_cluster
 
 from matplotlib import animation
 
