@@ -322,7 +322,9 @@ class VirgoCluster:
         self.sort_labels()
 
     @staticmethod
-    def get_avg_nn_dist(array: np.array, n_samples: int = 10000, n_nn: int = None, label: str = None):
+    def get_avg_nn_dist(
+        array: np.array, n_samples: int = 10000, n_nn: int = None, label: str = None
+    ):
         """Helper function to get the average NN distance from an array."""
 
         dists = []
@@ -334,7 +336,7 @@ class VirgoCluster:
             point = array[i]
             dist_to_all = np.sqrt(((array - point) ** 2).sum(1))
             dist_to_all = np.sort(dist_to_all)
-            dists.append(dist_to_all[1:n_nn + 1].mean())
+            dists.append(dist_to_all[1 : n_nn + 1].mean())
 
         dists = np.array(dists)
         # Maybe add cuts for noisy data? To stabilize with mean +- sig?
@@ -342,7 +344,7 @@ class VirgoCluster:
         plt.hist(dists, 100)
         plt.show()
         if label is not None:
-            plt.hist(dists, 100, [0., 0.5])
+            plt.hist(dists, 100, [0.0, 0.5])
             plt.savefig(f"nnd{n_nn}_{label}.png", dpi=300)
 
         vals, counts = np.unique(dists, return_counts=True)
@@ -352,7 +354,7 @@ class VirgoCluster:
         print(array.shape[0])
 
         #     return dists.mean()
-        return dists.mean() # + 1.5 * dists.std()
+        return dists.mean()  # + 1.5 * dists.std()
 
     @staticmethod
     def _load_data(
