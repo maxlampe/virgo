@@ -9,9 +9,6 @@ from virgo.fof.run_fof import _run_fof_for_cluster
 
 from matplotlib import animation
 
-# np.set_printoptions(edgeitems=10)
-# np.core.arrayprint._line_width = 180
-
 # TODO: numpy or pytorch data format?
 # ToDo: Use Sklearn? I don't like hybrid packages and GPyTorch is a given
 # ToDo: Spatial dimensions fixed input data dim [n_data,  (x, y, z, ...)] (no 2D)
@@ -112,7 +109,7 @@ class VirgoCluster:
         self,
         bins: int = 100,
         plot_range: list = None,
-        axs_label: list = ["x [ ]", "y [ ]", "z [ ]"],
+        axs_label: list = ["x [c kpc / h]", "y [c kpc / h]", "z [c kpc / h]"],
     ):
         """Visualize raw spatial data as histograms"""
 
