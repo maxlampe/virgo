@@ -5,19 +5,6 @@ import gpytorch
 import torch
 
 
-class MultitaskBernoulliLikelihood(gpytorch.likelihoods.Likelihood):
-    def forward(self, function_samples, **kwargs):
-        # prob = torch.exp(function_samples)
-        prob = function_samples
-        output_probs = torch.distributions.Normal(0, 1).cdf(prob)
-        out = torch.distributions.Independent(
-            torch.distributions.Bernoulli(probs=output_probs), 1
-        )
-        # out = torch.distributions.Independent(torch.distributions.Bernoulli(logits=output_probs), 1)
-
-        return out
-
-
 class DeepKernel(torch.nn.Module):
     def __init__(self, n_dim: int = 6, num_features: int = 10, hidden: int = 20):
         super().__init__()
