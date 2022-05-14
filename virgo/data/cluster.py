@@ -109,7 +109,7 @@ class VirgoCluster:
         self,
         bins: int = 100,
         plot_range: list = None,
-        axs_label: list = ["x [c kpc / h]", "y [c kpc / h]", "z [c kpc / h]"],
+        axs_label: list = ["x [c Mpc / h]", "y [c Mpc / h]", "z [c Mpc / h]"],
     ):
         """Visualize raw spatial data as histograms"""
 
@@ -125,8 +125,8 @@ class VirgoCluster:
                 p_range = None
 
             axs.flat[i].hist2d(
-                self.data[:, i % 3 + 1],
-                self.data[:, (i + 1) % 3 + 1],
+                self.data[:, i % 3 + 1] / 1000.,
+                self.data[:, (i + 1) % 3 + 1] / 1000.,
                 bins=bins,
                 norm=colors.LogNorm(),
                 cmap="plasma",
@@ -149,7 +149,7 @@ class VirgoCluster:
         plot_kernel_space: bool = False,
         store_gif: bool = False,
         gif_title: str = None,
-        axs_label: list = None,
+        axs_label: dict = None,
         cmap_vmin: float = None,
         cmap_vmax: float = None,
     ):
@@ -161,12 +161,12 @@ class VirgoCluster:
         if plot_kernel_space:
             plot_data = self.scaled_data[::n_step]
             if axs_label is None:
-                axs_label = ["phi_0 [ ]", "phi_1 [ ]", "phi_2 [ ]"]
+                axs_label = {"xlabel": "phi_0 [ ]", "ylabel": "phi_1 [ ]", "zlabel": "phi_2 [ ]"}
         else:
             # ignore event number dim
-            plot_data = self.cluster[::n_step, 1:]
+            plot_data = self.cluster[::n_step, 1:] / 1000.
             if axs_label is None:
-                axs_label = ["x [c kpc / h]", "y [c kpc / h]", "z [c kpc / h]"]
+                axs_label = {"xlabel": "x [c Mpc / h]", "ylabel": "y [c Mpc / h]", "zlabel": "z [c Mpc / h]"}
         plot_label = self.cluster_labels[::n_step]
 
         if remove_uncertain:
@@ -196,7 +196,7 @@ class VirgoCluster:
 
         def animate(i):
             # azimuth angle : 0 deg to 360 deg
-            ax.view_init(elev=10, azim=i * 1)
+            ax.view_init(elev=10, azim=i * 2)
             return (fig,)
 
         def init():
@@ -211,12 +211,12 @@ class VirgoCluster:
                 vmin=cmap_vmin,
                 vmax=cmap_vmax,
             )
-            ax.set(xlabel=axs_label[0], ylabel=axs_label[1], zlabel=axs_label[2])
+            ax.set(**axs_label)
 
         if store_gif:
             # Animate
             ani = animation.FuncAnimation(
-                fig, animate, init_func=init, frames=360, interval=100, blit=True
+                fig, animate, init_func=init, frames=300, interval=100, blit=True
             )
             if gif_title is None:
                 file_name = "rotate_azimuth_angle_3d_surf"
