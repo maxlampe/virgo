@@ -14,7 +14,8 @@ class DKLTrainer:
         model,
         likelihood,
         train_loader,
-        val_loader,
+        val_loader=None,
+        test_loader=None,
         epochs: int = 20,
         lr: float = 0.1,
         optimizer=None,
@@ -25,6 +26,7 @@ class DKLTrainer:
         self._likelihood = likelihood
         self.train_loader = train_loader
         self.val_loader = val_loader
+        self.train_loader = train_loader
         self._epochs = epochs
         self._lr = lr
 
@@ -71,11 +73,17 @@ class DKLTrainer:
         for epoch in range(1, self._epochs + 1):
             with gpytorch.settings.use_toeplitz(False):
                 self._train(epoch)
-                self._validate()
+                self._validate(self.val_loader)
             self._scheduler.step()
             # state_dict = model.state_dict()
             # likelihood_state_dict = likelihood.state_dict()
             # torch.save({'model': state_dict, 'likelihood': likelihood_state_dict}, 'dkl_cifar_checkpoint.dat')
+
+    def test(self):
+        """"""
+
+        with gpytorch.settings.use_toeplitz(False):
+            self._validate(self.test_loader)
 
     def _train(self, epoch: int):
         self._model.train()
@@ -96,24 +104,27 @@ class DKLTrainer:
                 self._optimizer.step()
                 minibatch_iter.set_postfix(loss=loss.item())
 
-    def _validate(self):
-        self._model.eval()
-        self._likelihood.eval()
+    def _validate(self, loader):
+        if loader is not None:
+            self._model.eval()
+            self._likelihood.eval()
 
-        correct = 0
-        with torch.no_grad(), gpytorch.settings.num_likelihood_samples(16):
-            for data, target in self.val_loader:
-                if torch.cuda.is_available():
-                    data, target = data.cuda(), target.cuda()
-                # This gives us 16 samples from the predictive distribution
-                output = self._likelihood(self._model(data))
-                # Taking the mean over all of the sample we've drawn
-                pred = output.probs.mean(0).argmax(-1)
-                correct += pred.eq(target.view_as(pred)).cpu().sum()
-        print(
-            "Test set: Accuracy: {}/{} ({}%)".format(
-                correct,
-                len(self.val_loader.dataset),
-                100.0 * correct / float(len(self.val_loader.dataset)),
+            correct = 0
+            with torch.no_grad(), gpytorch.settings.num_likelihood_samples(16):
+                for data, target in loader:
+                    if torch.cuda.is_available():
+                        data, target = data.cuda(), target.cuda()
+                    # This gives us 16 samples from the predictive distribution
+                    output = self._likelihood(self._model(data))
+                    # Taking the mean over all of the sample we've drawn
+                    pred = output.probs.mean(0).argmax(-1)
+                    correct += pred.eq(target.view_as(pred)).cpu().sum()
+            print(
+                "Accuracy: {}/{} ({}%)".format(
+                    correct,
+                    len(loader.dataset),
+                    100.0 * correct / float(len(loader.dataset)),
+                )
             )
-        )
+        else:
+            print("Loader is None. No evaluation ist done.")
