@@ -2,14 +2,18 @@
 
 # Virgo
 
-_virgo_ (**V**ariational **I**nference package for unsupe**R**vised classification of (inter-)**G**alactic sh**O**ck waves)
-is a Python package for [...] data.
+_Virgo_ (**V**ariational **I**nference package for unsupe**R**vised classification of (inter-)**G**alactic sh**O**ck waves)
+is a Python package for classification of an unknown number of cosmological shock waves in a scalable, probabilistic and physically-motivated way.
+It employs kernel principal component analysis with low-rank matrix approximations to denoise data sets of shocked particles and create labeled subsets.
+It performs supervised classification to recover full data resolution with stochastic variational deep kernel learning.
+The Virgo pipeline runs automatically, has only a few hyperparameters, and performs well on all tested data sets.
+
+This repository is meant to accompany the publication "Virgo: Scalable Unsupervised Classification of Cosmological Shock Waves" and can be found [here](https://github.com/maxlampe/virgo)
 
 
 ## Project status
 
-This project is very much WIP and changes are constantly being made. Feel free to contact [me](mailto:max.lamparth@tum.de?subject=virgo) for feedback and issues.
-Currently, even core features are still implemented and can be subject to change.
+This project might still be suject to change. Feel free to contact [me](mailto:max.lamparth@tum.de?subject=virgo) for feedback and issues.
 
 ## Usage
 
@@ -27,11 +31,11 @@ python3 -m pip install -e path-to-virgo-dir
 
 ### Getting started
 
-Talk about demo notebooks and docstring calls.
+Please see the demo notebooks in the respective directory to apply and use Virgo.
 
 ### Data files
 
-Give drive links to used data in paper.
+Feel free to contact [us](mailto:max.lamparth@tum.de?subject=virgodata) and we will provide you with data sets form the paper.
 
 ## Development
 
@@ -45,7 +49,7 @@ Give drive links to used data in paper.
 
 ### Unit tests
 
-None are implemented yet.
+None are currently implemented.
 
 ## License
 

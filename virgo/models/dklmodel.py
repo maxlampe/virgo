@@ -14,10 +14,8 @@ class DeepKernel(torch.nn.Module):
 
         self.net = torch.nn.Sequential(
             torch.nn.Linear(self._n_dim, self._hidden),
-            # torch.nn.Dropout(p=0.0002),  # 0.0002
             torch.nn.ReLU(),
             torch.nn.Linear(self._hidden, self._hidden),
-            # torch.nn.Dropout(p=0.0002),
             torch.nn.ReLU(),
             torch.nn.Linear(self._hidden, self.num_features),
             torch.nn.ReLU(),
@@ -34,9 +32,6 @@ class GaussianProcessLayer(gpytorch.models.ApproximateGP):
             num_inducing_points=grid_size, batch_shape=torch.Size([num_dim])
         )
 
-        # Our base variational strategy is a GridInterpolationVariationalStrategy,
-        # which places variational inducing points on a Grid
-        # We wrap it with a IndependentMultitaskVariationalStrategy so that our output is a vector-valued GP
         variational_strategy = (
             gpytorch.variational.IndependentMultitaskVariationalStrategy(
                 gpytorch.variational.GridInterpolationVariationalStrategy(
@@ -80,7 +75,6 @@ class DKLModel(gpytorch.Module):
         )
         self.grid_bounds = grid_bounds
 
-        # This module will scale the NN features so that they're nice values
         self.scale_to_bounds = gpytorch.utils.grid.ScaleToBounds(
             self.grid_bounds[0], self.grid_bounds[1]
         )
@@ -88,7 +82,6 @@ class DKLModel(gpytorch.Module):
     def forward(self, x):
         features = self.feature_extractor(x)
         features = self.scale_to_bounds(features)
-        # This next line makes it so that we learn a GP for each feature
         features = features.transpose(-1, -2).unsqueeze(-1)
         res = self.gp_layer(features)
         return res

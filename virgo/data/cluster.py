@@ -9,10 +9,6 @@ from virgo.fof.run_fof import _run_fof_for_cluster
 
 from matplotlib import animation
 
-# TODO: numpy or pytorch data format?
-# ToDo: Use Sklearn? I don't like hybrid packages and GPyTorch is a given
-# ToDo: Spatial dimensions fixed input data dim [n_data,  (x, y, z, ...)] (no 2D)
-
 
 class VirgoCluster:
     """"""
@@ -23,8 +19,6 @@ class VirgoCluster:
         io_mode: int = 0,
         mach_floor: float = 1.0,
         mach_ceiling: float = 15.0,
-        center=np.zeros(3),
-        radius: float = 0.0,  #
         shuffle_data: bool = True,
         cut_mach_dim: int = None,
         n_max_data: int = None,
@@ -41,9 +35,6 @@ class VirgoCluster:
                                         #   2: Gadget snapshot
             mach_floor                  # minimum Mach number to consider
             mach_ceiling                # maximum Mach number to consider
-            center = [0, 0, 0]          # center of seleted box (only relevant for io_mode = 2)
-            radius = 0                  # radius of selected box (only relevant for io_mode = 2)
-
         """
 
         self.rdm_seed = random_seed
@@ -87,7 +78,6 @@ class VirgoCluster:
         if use_dim is None:
             scaled_data = self.data[:, 1:]
         else:
-            # To get rid of added event id on import
             dims = [i + 1 for i in use_dim]
             scaled_data = self.data[:, dims]
         self.scaler = StandardScaler()
@@ -116,7 +106,6 @@ class VirgoCluster:
         from matplotlib import colors
 
         fig, axs = plt.subplots(1, 3, figsize=(10, 3))
-        # fig.suptitle("Raw data histograms with LogNorm")
 
         for i in range(3):
             if plot_range is not None:
@@ -214,12 +203,11 @@ class VirgoCluster:
             ax.set(**axs_label)
 
         if store_gif:
-            # Animate
             ani = animation.FuncAnimation(
                 fig, animate, init_func=init, frames=300, interval=100, blit=True
             )
             if gif_title is None:
-                file_name = "rotate_azimuth_angle_3d_surf"
+                file_name = "virgo_rotationgif"
             else:
                 file_name = gif_title
             ani.save(file_name + ".gif", writer="imagemagick", fps=15)
@@ -336,8 +324,6 @@ class VirgoCluster:
             dists.append(dist_to_all[1 : n_nn + 1].mean())
 
         dists = np.array(dists)
-        # Maybe add cuts for noisy data? To stabilize with mean +- sig?
-        # dists = dists[dists < 0.5]
         plt.hist(dists, 100)
         plt.show()
         if label is not None:
@@ -350,8 +336,7 @@ class VirgoCluster:
         print(dists.mean(), dists.std(), dists.mean() + 1.5 * dists.std(), mode)
         print(array.shape[0])
 
-        #     return dists.mean()
-        return dists.mean()  # + 1.5 * dists.std()
+        return dists.mean()
 
     @staticmethod
     def _load_data(
