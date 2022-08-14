@@ -116,9 +116,7 @@ class DKLTrainer:
                 for data, target in loader:
                     if torch.cuda.is_available():
                         data, target = data.cuda(), target.cuda()
-                    # This gives us 16 samples from the predictive distribution
                     output = self._likelihood(self._model(data))
-                    # Taking the mean over all of the sample we've drawn
                     pred = output.probs.mean(0).argmax(-1)
                     correct += pred.eq(target.view_as(pred)).cpu().sum()
 

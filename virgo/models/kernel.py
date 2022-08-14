@@ -9,11 +9,6 @@ from gpytorch import kernels
 from scipy.linalg import svd
 from sklearn.decomposition import PCA
 
-# ToDo: Needs to be expand for different kernels and different feature dims
-# ToDo: Currently all over the place: GPyTorch, Sklearn, Torch, ...
-# ToDo: Currently only uses rescaled data scaled_data
-# ToDo: Good idea to just append dim to scaled_data?
-
 
 class BaseKernel:
     """"""
@@ -129,13 +124,3 @@ class VirgoKernel(BaseKernel):
         mapping_matrix = np.linalg.pinv(U * np.sqrt(S) @ V).T
 
         return C @ mapping_matrix
-
-    @staticmethod
-    def nystroem_approximation(x_data, k, kernel_function):
-        """Kernel approximation"""
-
-        random_sample_indices = np.random.choice(x_data.shape[0], size=k)
-        C = kernel_function(x_data, x_data[random_sample_indices])
-        W = C[random_sample_indices]
-
-        return C, np.linalg.pinv(W)
