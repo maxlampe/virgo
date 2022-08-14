@@ -80,20 +80,9 @@ class VirgoKernel(BaseKernel):
         else:
             kernel = kernel_func
 
-        #
-        # kernel_2 = kernels.RBFKernel()
-        # kernel_2.lengthscale = 4 * x_data[:, self._spatial_dim].var()
-        # kernel += kernel_2
-        # kernel = kernel + kernels.LinearKernel()
-        # kernel = kernels.LinearKernel()
-
         kernel_space = self.nystroem_transformation_gpytorch(
             x_data[:, self._spatial_dim], k=self._k_nystroem, kernel_function=kernel
         )
-        #
-        # kernel_space = self.nystroem_transformation_gpytorch(
-        #     x_data, k=self._k_nystroem, kernel_function=MyWendland
-        # )
 
         kernel_space_pca = PCA(n_components=self._pca_comp).fit_transform(kernel_space)
 
@@ -119,7 +108,6 @@ class VirgoKernel(BaseKernel):
             kernel(spat_a, spat_b) * kernel2(spat_a, spat_b)
             + kernel(spat_a, spat_b) * kernel2(norm_a, norm_b)
             + kernel(spat_a, spat_b) * kernel2(norm_a, norm_b)
-            # kernel(spat_a, spat_b) * kernel2(spat_a, spat_b) * kernel2(norm_a, norm_b)
         )
 
     @staticmethod
@@ -134,13 +122,6 @@ class VirgoKernel(BaseKernel):
             .detach()
             .numpy()
         )
-        # C2 = (
-        #     kernel_function(-torch_data[random_sample_indices], torch_data)
-        #     .evaluate()
-        #     .detach()
-        #     .numpy()
-        # )
-        # C = C + C2.T
 
         W = C[random_sample_indices]
         # Calculating mapping_matrix = W^(-1/2)
@@ -158,55 +139,3 @@ class VirgoKernel(BaseKernel):
         W = C[random_sample_indices]
 
         return C, np.linalg.pinv(W)
-
-
-#
-# class MyKernel(kernels.Kernel):
-#     is_stationary = False
-#
-#     def forward(self, x1, x2, **params):
-#         covar = kernels.RBFKernel()
-#         print("x1 shape", x1.shape)
-#         # diff = self.covar_dist(x1[:, [0, 1, 2]], x2[:, [0, 1, 2]], **params)
-#         # diff.where(diff == 0, torch.as_tensor(1e-20))
-#         # print("diff shape", diff.shape)
-#
-#         length_scale = torch.mean(
-#             (torch.abs(x1[:, -1]) + torch.abs(x2[:, -1])).T, dim=1
-#         )
-#         print("length_scale shape", length_scale.shape)
-#
-#         covar.lengthscale = length_scale
-#
-#         val = torch.exp(diff / length_scale ** 2).detach().numpy()
-#
-#         return val
-
-
-class MyWendland(kernels.PiecewisePolynomialKernel):
-    has_lengthscale = False
-
-    def __init__(self, q=2, **kwargs):
-        super(MyWendland, self).__init__(**kwargs)
-        if q not in {0, 1, 2, 3}:
-            raise ValueError("q expected to be 0, 1, 2 or 3")
-        self.q = q
-
-    def forward(self, x1, x2, last_dim_is_batch=False, diag=False, **params):
-        x1_ = x1  # [:, [0, 1, 2]].div(x1[:, -1])
-        x2_ = x2  # [:, [0, 1, 2]].div(x2[:, -1])
-        if last_dim_is_batch is True:
-            D = x1.shape[1]
-        else:
-            D = x1.shape[-1]
-        j = torch.floor(torch.tensor(D / 2.0)) + self.q + 1
-        if last_dim_is_batch and diag:
-            r = self.covar_dist(x1_, x2_, last_dim_is_batch=True, diag=True)
-        elif diag:
-            r = self.covar_dist(x1_, x2_, diag=True)
-        elif last_dim_is_batch:
-            r = self.covar_dist(x1_, x2_, last_dim_is_batch=True)
-        else:
-            r = self.covar_dist(x1_, x2_)
-        cov_matrix = self.fmax(r, j, self.q) * self.get_cov(r, j, self.q)
-        return cov_matrix
