@@ -26,7 +26,7 @@ class DKLTrainer:
         self._likelihood = likelihood
         self.train_loader = train_loader
         self.val_loader = val_loader
-        self.train_loader = train_loader
+        self.test_loader = test_loader
         self._epochs = epochs
         self._lr = lr
 
@@ -83,7 +83,9 @@ class DKLTrainer:
         """"""
 
         with gpytorch.settings.use_toeplitz(False):
-            self._validate(self.test_loader)
+            res = self._validate(self.test_loader)
+
+        return res
 
     def _train(self, epoch: int):
         self._model.train()
@@ -119,12 +121,10 @@ class DKLTrainer:
                     # Taking the mean over all of the sample we've drawn
                     pred = output.probs.mean(0).argmax(-1)
                     correct += pred.eq(target.view_as(pred)).cpu().sum()
-            print(
-                "Accuracy: {}/{} ({}%)".format(
-                    correct,
-                    len(loader.dataset),
-                    100.0 * correct / float(len(loader.dataset)),
-                )
-            )
+
+            acc = 100.0 * correct / float(len(loader.dataset))
+            print(f"Accuracy: {correct}/{len(loader.dataset)} ({acc:0.4f}%)")
+            return acc
         else:
             print("Loader is None. No evaluation ist done.")
+            return None
