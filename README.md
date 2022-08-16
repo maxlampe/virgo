@@ -8,7 +8,7 @@ It employs kernel principal component analysis with low-rank matrix approximatio
 It performs supervised classification to recover full data resolution with stochastic variational deep kernel learning.
 The Virgo pipeline runs automatically, has only a few hyperparameters, and performs well on all tested data sets.
 
-This repository is meant to accompany the publication "Virgo: Scalable Unsupervised Classification of Cosmological Shock Waves" and can be found [here](https://github.com/maxlampe/virgo)
+This repository is meant to accompany the publication "Virgo: Scalable Unsupervised Classification of Cosmological Shock Waves" and can be found [here](https://arxiv.org/abs/2208.06859)
 
 
 ## Project status
